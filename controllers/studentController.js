@@ -296,20 +296,23 @@ export const addMentor = async (req, res) => {
 
 export const updateMentor = async (req, res) => {
     try {
-        const { studentId, mentorIndex } = req.params;
+        const { studentId, mentorId } = req.params;
         const updates = req.body;
 
         const student = await Student.findById(studentId);
         if (!student) return res.status(404).json({ message: "Student not found" });
 
-        if (!student.mentors[mentorIndex]) {
-            return res.status(404).json({ message: "Mentor not found at given index" });
-        }
+        const mentor = student.mentors.id(mentorId);
+        if (!mentor) return res.status(404).json({ message: "Mentor not found" });
 
-        student.mentors[mentorIndex] = { ...student.mentors[mentorIndex], ...updates };
+        Object.assign(mentor, updates);
+
         await student.save();
 
-        res.status(200).json({ message: "Mentor updated successfully", mentors: student.mentors });
+        res.status(200).json({
+            message: "Mentor updated successfully",
+            mentor: mentor
+        });
     } catch (error) {
         console.error("Error in updateMentor:", error);
         res.status(500).json({ message: "Internal server error", error: error.message });
@@ -318,13 +321,13 @@ export const updateMentor = async (req, res) => {
 
 export const getSingleMentor = async (req, res) => {
     try {
-        const { studentId, mentorIndex } = req.params;
+        const { studentId, mentorId } = req.params;
 
         const student = await Student.findById(studentId);
         if (!student) return res.status(404).json({ message: "Student not found" });
 
-        const mentor = student.mentors[mentorIndex];
-        if (!mentor) return res.status(404).json({ message: "Mentor not found at given index" });
+        const mentor = student.mentors.id(mentorId);
+        if (!mentor) return res.status(404).json({ message: "Mentor not found with given id" });
 
         res.status(200).json(mentor);
     } catch (error) {
@@ -333,4 +336,49 @@ export const getSingleMentor = async (req, res) => {
     }
 };
 
+export const deleteSingleMentor = async (req, res) => {
+    try {
+        const { studentId, mentorId } = req.params;
+
+        const student = await Student.findById(studentId);
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        const mentor = student.mentors.id(mentorId);
+        if (!mentor) return res.status(404).json({ message: "Mentor not found" });
+
+        student.mentors.pull(mentorId);
+        await student.save();
+
+        res.status(200).json({
+            message: "Mentor deleted successfully",
+            mentors: student.mentors
+        });
+    } catch (error) {
+        console.error("Error in deleteSingleMentor:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const deleteSingleGuardian = async (req, res) => {
+    try {
+        const { studentId, guardianId } = req.params;
+
+        const student = await Student.findById(studentId);
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        const guardian = student.guardians.id(guardianId);
+        if (!guardian) return res.status(404).json({ message: "Guardian not found" });
+
+        guardian.remove();
+        await student.save();
+
+        res.status(200).json({
+            message: "Guardian deleted successfully",
+            guardians: student.guardians
+        });
+    } catch (error) {
+        console.error("Error in deleteSingleGuardian:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
 

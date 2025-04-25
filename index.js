@@ -1,7 +1,7 @@
 import express from "express";
 import './config/config.js'
 import { register, login, refreshToken, logout } from "./controllers/authController.js";
-import { addGuardianToStudent, addMentor, createStudent, getAllStudents, getSingleGuardian, getSingleMentor, getSingleStudent, updateDemographicsOfStudent, updateGuardian, updateMentor } from "./controllers/studentController.js";
+import { addGuardianToStudent, addMentor, createStudent, deleteSingleGuardian, deleteSingleMentor, getAllStudents, getSingleGuardian, getSingleMentor, getSingleStudent, updateDemographicsOfStudent, updateGuardian, updateMentor } from "./controllers/studentController.js";
 import cors from "cors";
 
 const app = express()
@@ -36,11 +36,13 @@ app.put('/api/students/:id', updateDemographicsOfStudent)
 app.post('/api/students/:studentId/guardians', addGuardianToStudent)
 app.get('/api/students/:studentId/guardians/:guardianId', getSingleGuardian)
 app.put('/api/students/:studentId/guardians/:guardianId', updateGuardian)
+app.delete('/api/students/:studentId/guardians/:guardianId', deleteSingleGuardian)
 
 //mentors
 app.post('/api/students/:studentId/mentors', addMentor)
-app.get('/api/students/:studentId/mentors/:mentorIndex', getSingleMentor)
-app.put('/api/students/:studentId/mentors/:mentorIndex', updateMentor)
+app.get('/api/students/:studentId/mentors/:mentorId', getSingleMentor)
+app.put('/api/students/:studentId/mentors/:mentorId', updateMentor)
+app.delete('/api/students/:studentId/mentors/:mentorId', deleteSingleMentor)
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")
