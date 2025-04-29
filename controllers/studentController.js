@@ -37,6 +37,7 @@ export const createStudent = async (req, res) => {
                 gender_other: student.gender_other || "",
                 guardians: student.guardians || [],
                 mentors: student.mentors || [],
+                demographicsDetails: student.demographicsDetails || null,
                 phone: student.phone || "",
                 photo: student.photo,
                 referral_source: student.referral_source || "",
@@ -136,6 +137,7 @@ export const getSingleStudent = async (req, res) => {
             gender_other: student.gender_other || "",
             guardians: student.guardians || [],
             mentors: student.mentors || [],
+            demographicsDetails: student.demographicsDetails || null,
             phone: student.phone || "",
             photo: student.photo,
             referral_source: student.referral_source || "",
@@ -382,3 +384,32 @@ export const deleteSingleGuardian = async (req, res) => {
     }
 };
 
+export const upsertStudentDemographics = async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        const demographics = req.body;
+
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        if (!student.demographicsDetails) {
+            student.demographicsDetails = {};
+        }
+        Object.assign(student.demographicsDetails, demographics);
+
+        await student.save();
+
+        res.status(200).json({
+            message: "Demographics saved successfully",
+            demographicsDetails: student.demographicsDetails
+        });
+    } catch (error) {
+        console.error("Error in upsertStudentDemographics:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};

@@ -64,6 +64,21 @@ const mentorSchema = new mongoose.Schema({
     status_notes: { type: String, default: '' }
 })
 
+
+const demographicSchema = new mongoose.Schema({
+    hair_color: { type: String, default: "" },
+    eye_color: { type: String, default: "" },
+    wear_contacts: { type: Boolean, default: false },
+    wear_glasses: { type: Boolean, default: false },
+    has_children: { type: Boolean, default: false },
+    has_legal_history: { type: Boolean, default: false },
+    scars_marks_tattoos: { type: String, default: "" },
+    weight: { type: String, default: "" },
+    race_ethnicity: { type: String, default: "" },
+    language: { type: String, default: "" },
+    height: { type: String, default: "" },
+})
+
 const studentSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'Register' },
     user_info: {
@@ -83,6 +98,7 @@ const studentSchema = new mongoose.Schema({
     gender_other: { type: String, default: "" },
     guardians: { type: [guardianSchema], default: [] },
     mentors: { type: [mentorSchema], default: [] },
+    demographicsDetails: { type: demographicSchema, default: null },
     phone: {
         type: String,
         default: "",
