@@ -1,5 +1,6 @@
 import { Student } from "../models/student.model.js";
 import moment from "moment";
+import { applicationStatus } from "../models/enrollment/applicationStatus.model.js";
 
 export const createStudent = async (req, res) => {
     try {
@@ -371,7 +372,7 @@ export const deleteSingleGuardian = async (req, res) => {
         const guardian = student.guardians.id(guardianId);
         if (!guardian) return res.status(404).json({ message: "Guardian not found" });
 
-        guardian.remove();
+        student.guardians.pull(guardianId);
         await student.save();
 
         res.status(200).json({
@@ -411,5 +412,65 @@ export const upsertStudentDemographics = async (req, res) => {
             message: "Internal server error",
             error: error.message
         });
+    }
+};
+
+export const createApplicationStatus = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        if (!studentId) {
+            return res.status(400).json({ message: "studentId is required in the URL" });
+        }
+        const {
+            staff_member_info,
+            status,
+            reason,
+            reason_other,
+            timestamp,
+            staff_member
+        } = req.body;
+
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        const profile_info = {
+            first_name: student.user_info.first_name,
+            last_name: student.user_info.last_name,
+            email: student.user_info.email
+        };
+
+        const newStatus = await applicationStatus.create({
+            profile_info,
+            staff_member_info,
+            status,
+            reason,
+            reason_other,
+            timestamp,
+            profile: studentId,
+            staff_member
+        });
+
+        res.status(201).json({
+            applicationStatus: newStatus
+        });
+    } catch (error) {
+        console.error("Error in createApplicationStatus:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+export const getApplicationStatusesForStudent = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const statuses = await applicationStatus.find({ profile: studentId });
+        res.status(200).json(statuses);
+    } catch (error) {
+        console.error("Error in getApplicationStatusesForStudent:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
