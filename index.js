@@ -1,7 +1,7 @@
 import express from "express";
 import './config/config.js'
 import { register, login, refreshToken, logout } from "./controllers/authController.js";
-import { addGuardianToStudent, addMentor, createStudent, deleteSingleGuardian, deleteSingleMentor, getAllStudents, getSingleGuardian, getSingleMentor, getSingleStudent, updateDemographicsOfStudent, updateGuardian, updateMentor, upsertStudentDemographics, createApplicationStatus, getApplicationStatusesForStudent } from "./controllers/studentController.js";
+import { addGuardianToStudent, addMentor, createStudent, deleteSingleGuardian, deleteSingleMentor, getAllStudents, getSingleGuardian, getSingleMentor, getSingleStudent, updateDemographicsOfStudent, updateGuardian, updateMentor, upsertStudentDemographics, createApplicationStatus, getApplicationStatusesForStudent, updateApplicationStaus, deleteApplicationStatus } from "./controllers/studentController.js";
 import cors from "cors";
 
 const app = express()
@@ -49,6 +49,8 @@ app.put('/api/students/:id/demographics', upsertStudentDemographics);
 
 app.post('/api/students/:studentId/application-status', createApplicationStatus);
 app.get('/api/students/:studentId/application-status', getApplicationStatusesForStudent);
+app.put('/api/student/:studentId/application-status/:applicationStatusId', updateApplicationStaus)
+app.delete('/api/student/:applicationStatusId/application-status', deleteApplicationStatus)
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000")

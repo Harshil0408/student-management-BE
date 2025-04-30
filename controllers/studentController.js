@@ -241,10 +241,10 @@ export const getSingleGuardian = async (req, res) => {
         const { studentId, guardianId } = req.params;
 
         const student = await Student.findById(studentId);
-        if (!student) return res.status(404).json({ message: 'Student not found' });
+        if (!student) return res.status(404).json({ message: "Student not found" });
 
         const guardian = student.guardians.id(guardianId);
-        if (!guardian) return res.status(404).json({ message: 'Guardian not found' });
+        if (!guardian) return res.status(404).json({ message: "Guardian not found" });
 
         res.status(200).json(guardian);
     } catch (error) {
@@ -471,6 +471,46 @@ export const getApplicationStatusesForStudent = async (req, res) => {
         res.status(200).json(statuses);
     } catch (error) {
         console.error("Error in getApplicationStatusesForStudent:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const updateApplicationStaus = async (req, res) => {
+    try {
+        const { studentId, applicationStatusId } = req.params
+        const updates = req.body
+
+        const student = await Student.findById(studentId);
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        const applicationStatusData = await applicationStatus.findById(applicationStatusId)
+        if (!applicationStatusData) return res.status(404).json({ message: "Application status not found" })
+
+        Object.assign(applicationStatusData, updates)
+        await applicationStatusData.save()
+
+        res.status(200).json({
+            applicationStatus: applicationStatusData
+        })
+
+    } catch (error) {
+        return res.status(500).json({ messgae: "Internal server error", error: error?.message })
+    }
+}
+export const deleteApplicationStatus = async (req, res) => {
+    try {
+        const { applicationStatusId } = req.params;
+
+        const deletedStatus = await applicationStatus.findByIdAndDelete(applicationStatusId);
+        if (!deletedStatus) {
+            return res.status(400).json({ message: "Application status not found" });
+        }
+
+        res.status(200).json({
+            message: "Application status deleted successfully",
+            deletedStatus,
+        });
+    } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
